@@ -163,7 +163,7 @@ class _SignupScreenState extends State<SignupScreen>
               ),
               child: const Center(
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: Color.fromARGB(255, 29, 28, 28),
                   strokeWidth: 3,
                 ),
               ),
@@ -173,7 +173,7 @@ class _SignupScreenState extends State<SignupScreen>
           const Text(
             'Creating your account...',
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromARGB(255, 23, 22, 22),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -268,7 +268,7 @@ class _SignupScreenState extends State<SignupScreen>
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Color.fromARGB(255, 29, 28, 28),
             letterSpacing: -0.5,
           ),
         ),
@@ -276,7 +276,7 @@ class _SignupScreenState extends State<SignupScreen>
         const Text(
           'Create your sweet account',
           style: TextStyle(
-            color: Colors.white70,
+            color: Color.fromARGB(179, 24, 23, 23),
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
@@ -286,7 +286,7 @@ class _SignupScreenState extends State<SignupScreen>
           width: 50,
           height: 3,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
+            color: const Color.fromARGB(255, 53, 51, 51).withOpacity(0.5),
             borderRadius: BorderRadius.circular(2),
           ),
         ),

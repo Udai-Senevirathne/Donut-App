@@ -5,6 +5,7 @@ import 'bloc/home_bloc.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,11 +28,12 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        initialRoute: '/signup',
+        initialRoute: '/splash',
         routes: {
           '/login': (context) => const LoginScreen(),
           '/signup': (context) => const SignupScreen(),
           '/home': (context) => const HomeScreen(),
+          '/splash': (context) => const SplashScreen(nextRoute: '/login'),
         },
       ),
     );

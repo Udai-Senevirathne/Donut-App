@@ -9,22 +9,23 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
+
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _scaleController;
   late AnimationController _rotateController;
   late AnimationController _pulseController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotateAnimation;
   late Animation<double> _pulseAnimation;
-  
+
   bool _isPasswordVisible = false;
   bool _isEmailFocused = false;
   bool _isPasswordFocused = false;
@@ -32,53 +33,56 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _rotateController = AnimationController(
       duration: const Duration(seconds: 20),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
-    
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    );
+
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
-    
-    _rotateAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _rotateController, curve: Curves.linear),
-    );
-    
+
+    _rotateAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _rotateController, curve: Curves.linear));
+
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-    
+
     // Start animations
     _fadeController.forward();
     _slideController.forward();
@@ -249,10 +253,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 ],
               ),
               child: const Center(
-                child: Text(
-                  '🍩',
-                  style: TextStyle(fontSize: 50),
-                ),
+                child: Text('🍩', style: TextStyle(fontSize: 50)),
               ),
             ),
           ),
@@ -269,7 +270,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Color.fromARGB(255, 0, 0, 0),
             letterSpacing: -0.5,
           ),
         ),
@@ -277,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         const Text(
           'Sign in to continue your sweet journey',
           style: TextStyle(
-            color: Colors.white70,
+            color: Color.fromARGB(179, 24, 23, 23),
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
@@ -287,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           width: 50,
           height: 3,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
+            color: const Color.fromARGB(255, 55, 52, 52).withOpacity(0.5),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -374,15 +375,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             color: isFocused ? const Color(0xFFFF6B35) : Colors.grey[300]!,
             width: isFocused ? 2 : 1,
           ),
-          boxShadow: isFocused
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFFFF6B35).withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
+          boxShadow:
+              isFocused
+                  ? [
+                    BoxShadow(
+                      color: const Color(0xFFFF6B35).withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                  : null,
         ),
         child: TextField(
           controller: controller,
@@ -400,21 +402,27 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 color: isFocused ? const Color(0xFFFF6B35) : Colors.grey[600],
               ),
             ),
-            suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.grey[600],
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  )
-                : null,
+            suffixIcon:
+                isPassword
+                    ? IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.grey[600],
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    )
+                    : null,
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
         ),
       ),
@@ -482,10 +490,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
