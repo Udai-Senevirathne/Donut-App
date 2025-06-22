@@ -9,11 +9,13 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+// This is the state class for the LoginScreen widget.
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  // Animation controllers for various animations
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _scaleController;
@@ -30,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isEmailFocused = false;
   bool _isPasswordFocused = false;
 
+  // Initialize the animation controllers and animations
   @override
   void initState() {
     super.initState();

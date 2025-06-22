@@ -7,6 +7,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+// This is the state class for HomeScreen, which manages the animations and UI components.
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String selectedCategory = 'Mocktail';
   late AnimationController _fadeController;

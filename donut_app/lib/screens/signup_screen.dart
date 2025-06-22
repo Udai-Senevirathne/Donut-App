@@ -9,81 +9,63 @@ class SignupScreen extends StatefulWidget {
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen>
-    with TickerProviderStateMixin {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMixin {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late AnimationController _scaleController;
-  late AnimationController _rotateController;
-  late AnimationController _pulseController;
+  // Animation controllers and animations for various effects
+  late final AnimationController _fadeController;
+  late final AnimationController _slideController;
+  late final AnimationController _scaleController;
+  late final AnimationController _rotateController;
+  late final AnimationController _pulseController;
 
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _rotateAnimation;
-  late Animation<double> _pulseAnimation;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _rotateAnimation;
+  late final Animation<double> _pulseAnimation;
 
+  // State variables for UI interactions
   bool _isPasswordVisible = false;
   bool _isEmailFocused = false;
   bool _isPasswordFocused = false;
+  String? _emailError;
 
+
+  // Initialize the animations in initState
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
+    _startAnimations();
 
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
+    _emailController.addListener(() {
+      final email = _emailController.text.trim();
+      final isValid = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email);
+      setState(() {
+        _emailError = email.isEmpty || isValid ? null : 'Invalid email address';
+      });
+    });
+  }
 
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
+  // Initialize all animation controllers and animations
+  void _initializeAnimations() {
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _slideController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _scaleController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _rotateController = AnimationController(vsync: this, duration: const Duration(seconds: 20));
+    _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
 
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut));
+    _rotateAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _rotateController, curve: Curves.linear));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+  }
 
-    _rotateController = AnimationController(
-      duration: const Duration(seconds: 20),
-      vsync: this,
-    );
-
-    _pulseController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
-    );
-
-    _rotateAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _rotateController, curve: Curves.linear));
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    // Start animations
+  // Start the animations
+  void _startAnimations() {
     _fadeController.forward();
     _slideController.forward();
     _scaleController.forward();
@@ -120,31 +102,32 @@ class _SignupScreenState extends State<SignupScreen>
           ),
         ),
         child: BlocConsumer<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is Authenticated) {
-              Navigator.pushReplacementNamed(context, '/home');
-            } else if (state is Unauthenticated && state.message != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message!),
-                  backgroundColor: Colors.red[400],
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              );
-            }
-          },
+          listener: _authListener,
           builder: (context, state) {
             if (state is AuthLoading) {
               return _buildLoadingScreen();
+            } else {
+              return _buildSignupForm();
             }
-            return _buildSignupForm();
           },
         ),
       ),
     );
+  }
+
+  void _authListener(BuildContext context, AuthState state) {
+    if (state is Authenticated) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else if (state is Unauthenticated && state.message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.message!),
+          backgroundColor: Colors.red[400],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
   }
 
   Widget _buildLoadingScreen() {
@@ -186,25 +169,22 @@ class _SignupScreenState extends State<SignupScreen>
   Widget _buildSignupForm() {
     return SafeArea(
       child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Column(
-                children: [
-                  const SizedBox(height: 60),
-                  _buildAnimatedLogo(),
-                  const SizedBox(height: 40),
-                  _buildWelcomeText(),
-                  const SizedBox(height: 50),
-                  _buildSignupCard(),
-                  const SizedBox(height: 30),
-                  _buildLoginLink(),
-                  const SizedBox(height: 20),
-                ],
-              ),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Column(
+              children: [
+                const SizedBox(height: 60),
+                _buildAnimatedLogo(),
+                const SizedBox(height: 40),
+                _buildWelcomeText(),
+                const SizedBox(height: 50),
+                _buildSignupCard(),
+                const SizedBox(height: 30),
+                _buildLoginLink(),
+              ],
             ),
           ),
         ),
@@ -250,9 +230,7 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
                 ],
               ),
-              child: const Center(
-                child: Text('🍩', style: TextStyle(fontSize: 50)),
-              ),
+              child: const Center(child: Text('🍩', style: TextStyle(fontSize: 50))),
             ),
           ),
         ],
@@ -265,21 +243,12 @@ class _SignupScreenState extends State<SignupScreen>
       children: [
         const Text(
           'Join Cursteez!',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 29, 28, 28),
-            letterSpacing: -0.5,
-          ),
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 29, 28, 28)),
         ),
         const SizedBox(height: 8),
         const Text(
           'Create your sweet account',
-          style: TextStyle(
-            color: Color.fromARGB(179, 24, 23, 23),
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
+          style: TextStyle(fontSize: 16, color: Color.fromARGB(179, 24, 23, 23)),
         ),
         const SizedBox(height: 12),
         Container(
@@ -315,27 +284,20 @@ class _SignupScreenState extends State<SignupScreen>
             label: 'Email Address',
             icon: Icons.email_outlined,
             isFocused: _isEmailFocused,
-            onFocusChange: (focused) {
-              setState(() {
-                _isEmailFocused = focused;
-              });
-            },
+            errorText: _emailError,
+            onFocusChange: (focused) => setState(() => _isEmailFocused = focused),
           ),
           const SizedBox(height: 20),
           _buildAnimatedTextField(
             controller: _passwordController,
             label: 'Password',
             icon: Icons.lock_outline,
-            isFocused: _isPasswordFocused,
             isPassword: true,
-            onFocusChange: (focused) {
-              setState(() {
-                _isPasswordFocused = focused;
-              });
-            },
+            isFocused: _isPasswordFocused,
+            onFocusChange: (focused) => setState(() => _isPasswordFocused = focused),
           ),
           const SizedBox(height: 20),
-          _buildAnimatedSignupButton(),
+          _buildSignupButton(),
         ],
       ),
     );
@@ -347,6 +309,7 @@ class _SignupScreenState extends State<SignupScreen>
     required IconData icon,
     required bool isFocused,
     required Function(bool) onFocusChange,
+    String? errorText,
     bool isPassword = false,
   }) {
     return Focus(
@@ -359,68 +322,47 @@ class _SignupScreenState extends State<SignupScreen>
             color: isFocused ? const Color(0xFFFF6B35) : Colors.grey[300]!,
             width: isFocused ? 2 : 1,
           ),
-          boxShadow:
-              isFocused
-                  ? [
-                    BoxShadow(
-                      color: const Color(0xFFFF6B35).withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                  : null,
+          boxShadow: isFocused
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFFF6B35).withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: TextField(
           controller: controller,
           obscureText: isPassword && !_isPasswordVisible,
           decoration: InputDecoration(
             labelText: label,
+            errorText: errorText,
             labelStyle: TextStyle(
               color: isFocused ? const Color(0xFFFF6B35) : Colors.grey[600],
               fontWeight: FontWeight.w500,
             ),
-            prefixIcon: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              child: Icon(
-                icon,
-                color: isFocused ? const Color(0xFFFF6B35) : Colors.grey[600],
-              ),
-            ),
-            suffixIcon:
-                isPassword
-                    ? IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.grey[600],
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    )
-                    : null,
+            prefixIcon: Icon(icon, color: isFocused ? const Color(0xFFFF6B35) : Colors.grey[600]),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility, color: Colors.grey[600]),
+                    onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                  )
+                : null,
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildAnimatedSignupButton() {
+  Widget _buildSignupButton() {
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF6B35), Color(0xFFFF8E53)],
-        ),
+        gradient: const LinearGradient(colors: [Color(0xFFFF6B35), Color(0xFFFF8E53)]),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -435,9 +377,22 @@ class _SignupScreenState extends State<SignupScreen>
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            BlocProvider.of<AuthBloc>(context).add(
-              SignupRequested(_emailController.text, _passwordController.text),
-            );
+            final email = _emailController.text.trim();
+            final password = _passwordController.text.trim();
+
+            if (email.isEmpty || password.isEmpty || _emailError != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Please enter a valid email and password.'),
+                  backgroundColor: Colors.red[400],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              );
+              return;
+            }
+
+            context.read<AuthBloc>().add(SignupRequested(email, password));
           },
           child: const Center(
             child: Row(
@@ -445,18 +400,10 @@ class _SignupScreenState extends State<SignupScreen>
               children: [
                 Text(
                   'Sign Up',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
               ],
             ),
           ),
@@ -476,14 +423,9 @@ class _SignupScreenState extends State<SignupScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Already have an account? ',
-            style: TextStyle(color: Color.fromARGB(179, 19, 19, 19), fontSize: 16),
-          ),
+          const Text('Already have an account? ', style: TextStyle(color: Color.fromARGB(179, 19, 19, 19), fontSize: 16)),
           GestureDetector(
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/login');
-            },
+            onTap: () => Navigator.pushReplacementNamed(context, '/login'),
             child: const Text(
               'Sign In',
               style: TextStyle(
