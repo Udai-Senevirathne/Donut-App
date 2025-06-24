@@ -18,20 +18,23 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
     _emailController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is Unauthenticated && state.message != null) {
+        if (state is PasswordResetSent) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password reset email sent! Check your inbox.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else if (state is PasswordResetError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message!),
-              backgroundColor: Colors.red[400],
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              content: Text(state.message),
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -81,31 +84,18 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
-          ),
-          BlocBuilder<AuthBloc, AuthState>(
+          ),          BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               return ElevatedButton(
-                onPressed:
-                    state is AuthLoading
-                        ? null
-                        : () {
-                          if (_formKey.currentState!.validate()) {
-                            // Since we don't have Firebase, just show a mock message
-                            Navigator.of(context).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Password reset email would be sent to ${_emailController.text}',
-                                ),
-                                backgroundColor: Colors.green[400],
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          }
-                        },
+                onPressed: state is AuthLoading
+                    ? null
+                    : () {
+                        if (_formKey.currentState!.validate()) {
+                          context.read<AuthBloc>().add(
+                                PasswordResetRequested(_emailController.text.trim()),
+                              );
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF8C42),
                   foregroundColor: Colors.white,
@@ -113,19 +103,18 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child:
-                    state is AuthLoading
-                        ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
+                child: state is AuthLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
-                        )
-                        : const Text('Send Reset Link'),
+                        ),
+                      )
+                    : const Text('Send Reset Link'),
               );
             },
           ),

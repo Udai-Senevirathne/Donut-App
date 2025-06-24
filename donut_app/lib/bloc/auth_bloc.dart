@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'auth_repository.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -25,6 +26,13 @@ class SignupRequested extends AuthEvent {
 
 class LogoutRequested extends AuthEvent {}
 
+class PasswordResetRequested extends AuthEvent {
+  final String email;
+  PasswordResetRequested(this.email);
+  @override
+  List<Object?> get props => [email];
+}
+
 // States
 abstract class AuthState extends Equatable {
   @override
@@ -49,30 +57,33 @@ class Unauthenticated extends AuthState {
   List<Object?> get props => [message];
 }
 
+class PasswordResetSent extends AuthState {}
+
+class PasswordResetError extends AuthState {
+  final String message;
+  PasswordResetError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
 // Bloc
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  // Simulated in-memory user database (only for demo)
-  final Map<String, String> _userDatabase = {
-    'test@test.com': 'password',
-  };
+  final AuthRepository _authRepository;
 
-  AuthBloc() : super(AuthInitial()) {
+  AuthBloc(this._authRepository) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<SignupRequested>(_onSignupRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<PasswordResetRequested>(_onPasswordResetRequested);
   }
 
   void _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    await Future.delayed(const Duration(seconds: 1));
-
-    final email = event.email.trim().toLowerCase();
-    final password = event.password.trim();
-
-    print('Trying to log in with: $email / $password');
-
-    if (_userDatabase.containsKey(email) && _userDatabase[email] == password) {
-      emit(Authenticated(email));
+    
+    final success = await _authRepository.login(event.email, event.password);
+    
+    if (success) {
+      emit(Authenticated(event.email));
     } else {
       emit(Unauthenticated(message: 'Invalid credentials'));
     }
@@ -80,21 +91,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onSignupRequested(SignupRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    await Future.delayed(const Duration(seconds: 1));
-
-    final email = event.email.trim().toLowerCase();
-    final password = event.password.trim();
-
-    // Simulate saving user to "database"
-    _userDatabase[email] = password;
-
-    print('New user signed up: $email / $password');
-
-    // Auto-login after signup
-    emit(Authenticated(email));
+    
+    final success = await _authRepository.signup(event.email, event.password);
+    
+    if (success) {
+      emit(Authenticated(event.email));
+    } else {
+      emit(Unauthenticated(message: 'Signup failed'));
+    }
   }
 
   void _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
+    await _authRepository.signOut();
     emit(AuthInitial());
+  }
+
+  void _onPasswordResetRequested(PasswordResetRequested event, Emitter<AuthState> emit) async {
+    try {
+      final success = await _authRepository.resetPassword(event.email);
+      if (success) {
+        emit(PasswordResetSent());
+      } else {
+        emit(PasswordResetError('Failed to send reset email'));
+      }
+    } catch (e) {
+      emit(PasswordResetError('Error: $e'));
+    }
   }
 }
