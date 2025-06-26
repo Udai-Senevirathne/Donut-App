@@ -18,6 +18,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
     _emailController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -32,10 +33,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
           );
         } else if (state is PasswordResetError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
@@ -84,18 +82,22 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
-          ),          BlocBuilder<AuthBloc, AuthState>(
+          ),
+          BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               return ElevatedButton(
-                onPressed: state is AuthLoading
-                    ? null
-                    : () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthBloc>().add(
-                                PasswordResetRequested(_emailController.text.trim()),
-                              );
-                        }
-                      },
+                onPressed:
+                    state is AuthLoading
+                        ? null
+                        : () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthBloc>().add(
+                              PasswordResetRequested(
+                                _emailController.text.trim(),
+                              ),
+                            );
+                          }
+                        },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF8C42),
                   foregroundColor: Colors.white,
@@ -103,18 +105,19 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: state is AuthLoading
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                child:
+                    state is AuthLoading
+                        ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
-                        ),
-                      )
-                    : const Text('Send Reset Link'),
+                        )
+                        : const Text('Send Reset Link'),
               );
             },
           ),

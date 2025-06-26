@@ -43,3 +43,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase configuration files (NEVER commit these!)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+firebase-debug.log
+.firebase/
+.firebaserc
+firebase.json
+
+# Local configuration
+android/local.properties
+android/key.properties
+ios/Flutter/flutter_export_environment.sh

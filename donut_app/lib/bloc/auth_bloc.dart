@@ -79,9 +79,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    
+
     final success = await _authRepository.login(event.email, event.password);
-    
+
     if (success) {
       emit(Authenticated(event.email));
     } else {
@@ -89,11 +89,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onSignupRequested(SignupRequested event, Emitter<AuthState> emit) async {
+  void _onSignupRequested(
+    SignupRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
-    
+
     final success = await _authRepository.signup(event.email, event.password);
-    
+
     if (success) {
       emit(Authenticated(event.email));
     } else {
@@ -101,12 +104,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
+  void _onLogoutRequested(
+    LogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     await _authRepository.signOut();
     emit(AuthInitial());
   }
 
-  void _onPasswordResetRequested(PasswordResetRequested event, Emitter<AuthState> emit) async {
+  void _onPasswordResetRequested(
+    PasswordResetRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     try {
       final success = await _authRepository.resetPassword(event.email);
       if (success) {

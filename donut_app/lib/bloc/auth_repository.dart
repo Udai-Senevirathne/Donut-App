@@ -5,10 +5,9 @@ class AuthRepository {
 
   Future<bool> login(String email, String password) async {
     try {
-      final UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );      return result.user != null;
+      final UserCredential result = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
+      return result.user != null;
     } catch (e) {
       // Login error: $e
       return false;
@@ -17,10 +16,9 @@ class AuthRepository {
 
   Future<bool> signup(String email, String password) async {
     try {
-      final UserCredential result = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );      return result.user != null;
+      final UserCredential result = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      return result.user != null;
     } catch (e) {
       // Signup error: $e
       return false;
@@ -29,7 +27,8 @@ class AuthRepository {
 
   Future<bool> resetPassword(String email) async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);      return true;
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      return true;
     } catch (e) {
       // Password reset error: $e
       return false;
