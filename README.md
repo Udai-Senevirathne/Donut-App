@@ -73,7 +73,7 @@ Before you begin, ensure you have the following installed:
 
 ## 📱 Screenshots
 
-*Coming soon - Screenshots will be added to showcase the app's beautiful UI*
+*Coming soon 
 
 ## 🏗️ Architecture
 
