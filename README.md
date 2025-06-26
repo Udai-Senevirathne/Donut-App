@@ -163,20 +163,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Udai Senevirathne**
 - GitHub: [@Udai-Senevirathne](https://github.com/Udai-Senevirathne)
 
-## 🙏 Acknowledgments
-
-- Flutter team for the amazing framework
-- Firebase team for the authentication services
-- Material Design team for the design system
-- The Flutter community for continuous support
-
-## 📞 Support
-
-If you have any questions or need help with the project, please:
-1. Check the [Issues](https://github.com/Udai-Senevirathne/Donut-App/issues) page
-2. Create a new issue if your question isn't already addressed
-3. Provide as much detail as possible in your issue description
-
 ---
 
 <div align="center">
